@@ -14,8 +14,8 @@ library(Rspotify)
 
 # Spotify Credentials -----------------------------------------------------
 
-id <- 'd651a403a9b44284a0401d3c1e371166'
-secret <- 'Enter Key'
+id <- 'Enter Client ID'
+secret <- 'Enter ClientKey'
 app_id <- "my_music_analysis"
 user_id <- "zwixom"
 
