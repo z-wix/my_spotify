@@ -10,7 +10,7 @@ library(Rspotify)
 
 # Spotify Credentials -----------------------------------------------------
 
-"Load my_oath if saved already"
+# "Load my_oath if saved already"
 
 id <- 'Id'
 secret <- 'ClientSecret'
@@ -69,8 +69,6 @@ for (i in seq(playlists)) {
   x <- getPlaylistSongs(user_id, playlists[i], offset = 0, token = my_oauth)
   # Add index column to x
   x$playlist_index <- i
-  # Add index column to playlist_data
-  playlist_data$playlist_index <- i
   # Rbind x and playlist_data
   playlist_data <- rbind(playlist_data, x)
 }
@@ -82,39 +80,26 @@ beat_s_100$playlist_index <- i + 1
 
 playlist_data <- rbind(playlist_data, beat_s_100)
 
-playlist_data %>% 
-  rename(track_id = id)
-
-# practice playlist stuff -------------------------------------------------
+playlist_data <- playlist_data %>% 
+  rename(track_id = id, track_pop = popularity)
 
 
-
-# beat_s_1 <- getPlaylistSongs(user_id, playlist_id = "4rExKM3K6d0PEORWwrIdnx", offset = 0, token = my_oauth)
-
-# join together larger playlist
-# beat_s <- rbind(beat_s_1, beat_s_100)
-
-# Other large playlists made by user
-# game_beats <- getPlaylistSongs(user_id, playlist_id = "7qDHu25bjzPesmyFjNZCO5", offset = 0, token = my_oauth)
-# toon_beats <- getPlaylistSongs(user_id, playlist_id = "2ZspCM7ulRvd2lt6vhbjbo", offset = 0, token = my_oauth)
-
-
-
-
-# Artist Analysis ---------------------------------------------------------
+# Get User Artist ---------------------------------------------------------
 
 # select artist vars
-beat_s_artists <- beat_s %>% 
+my_artists <- playlist_data %>% 
   select(artist, artist_full, artist_id)
 
 # create vecotr for for loop of artists ids
-artists <- as.vector(beat_s_artists$artist_id)
+artists <- as.vector(my_artists$artist_id)
 
 # Check to make sure the artist Ids can be found
 for(i in seq(artists)) {
   x <- getArtist(artists[i], token = my_oauth)
   if(nrow(x) < 1){
     print(i)
+  }else{
+    print("success")
   }
 }
 
@@ -129,12 +114,42 @@ artist_data <- data.frame(artist=character(),
 # loop to collect data about artists in the playlist
 for (i in seq(artists)) {
   x <- getArtist(artists[i],token = my_oauth)
-  
+  # Rbind x and playlist_data
   artist_data <- rbind(artist_data, x)
 }
 
+artists2 <- as.vector((nrow(artist_data)+1):214)
 
-artist_data
+# only could do the first 127 artists so I will do it again
+for (i in artists2) {
+  x <- getArtist(artists[i],token = my_oauth)
+  # Rbind x and playlist_data
+  artist_data <- rbind(artist_data, x)
+}
+
+artist_data <- artist_data %>% 
+  rename(artist_id = id, artist_name = name, artist_pop = popularity, artist_followers = followers)
+
+
+
+# Join Playlists and Artist  ----------------------------------------------
+
+test <- inner_join(playlist_data, artist_data)
+
+
+# practice playlist stuff -------------------------------------------------
+
+# beat_s_1 <- getPlaylistSongs(user_id, playlist_id = "4rExKM3K6d0PEORWwrIdnx", offset = 0, token = my_oauth)
+
+# join together larger playlist
+# beat_s <- rbind(beat_s_1, beat_s_100)
+
+# Other large playlists made by user
+# game_beats <- getPlaylistSongs(user_id, playlist_id = "7qDHu25bjzPesmyFjNZCO5", offset = 0, token = my_oauth)
+# toon_beats <- getPlaylistSongs(user_id, playlist_id = "2ZspCM7ulRvd2lt6vhbjbo", offset = 0, token = my_oauth)
+
+
+
 
 
 # practice artist stuff ---------------------------------------------------
