@@ -1,21 +1,19 @@
 # Initial Spotify Analysis
 
-
-# Dependency to Install SpotifyR -------------------------------------------
-
 # Load packages -----------------------------------------------------------
 library(tidyverse)
 library(here)
-
-# spotify api 2
+# spotify api
 library(Rspotify)
 
 
 
 # Spotify Credentials -----------------------------------------------------
 
-id <- 'Enter Client ID'
-secret <- 'Enter ClientKey'
+"Load my_oath if saved already"
+
+id <- 'Id'
+secret <- 'ClientSecret'
 app_id <- "my_music_analysis"
 user_id <- "zwixom"
 
