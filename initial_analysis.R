@@ -12,19 +12,19 @@ library(Rspotify)
 
 # "Load my_oath if saved already"
 
-id <- 'Id'
-secret <- 'ClientSecret'
-app_id <- "my_music_analysis"
+# id <- 'Id'
+# secret <- 'ClientSecret'
+# app_id <- "my_music_analysis"
 
 user_id <- "zwixom"
 
 # Authentication ----------------------------------------------------------
 
-# my_oauth <- spotifyOAuth(app_id="xxxx",client_id="yyyy",client_secret="zzzz")
-my_oauth <- spotifyOAuth(app_id, id, secret)
-
-# Save authentication
-save(my_oauth, file="my_oauth")
+# # my_oauth <- spotifyOAuth(app_id="xxxx",client_id="yyyy",client_secret="zzzz")
+# my_oauth <- spotifyOAuth(app_id, id, secret)
+# 
+# # Save authentication
+# save(my_oauth, file="my_oauth")
 
 # to load authentication
 load("my_oauth")
@@ -50,7 +50,7 @@ my_playlists <- all_playlists %>%
   filter(ownerid == user_id)
 
 # Vecotr of playlist_ids
-playlists <- as.vector(my_playlists$playlist_id)
+playlists <- as.vector(all_playlists$playlist_id)
 
 # Empty vector for playlists with over 100 songs
 over_100 <- vector("character")
@@ -90,13 +90,28 @@ for (i in seq(playlists)) {
 
 # Loop to gather artist over 100 in playlists
 for (i in seq(over_100)) {
-  # getPlaylistsongs
-  x <- getPlaylistSongs(user_id, over_100[i], offset = 100, token = my_oauth)
-  # Add index column to x
-  x$playlist_index <- i
-  # Rbind x and playlist_data
-  playlist_data <- rbind(playlist_data, x)
+  # Not sure why these playlist IDs i couldn't grab the data after 100 songs
+  if (i %in% c(1,12,16,19)) {
+    print(i)
+  }else{
+    # getPlaylistsongs
+    x <- getPlaylistSongs(user_id, over_100[i], offset = 100, token = my_oauth)
+    # Add index column to x
+    x$playlist_index <- i
+    # Rbind x and playlist_data
+    playlist_data <- rbind(playlist_data, x)
+    # print i for progress
+    print(i)
+  }
 }
+
+# Rename some variables
+playlist_data <- playlist_data %>% 
+  rename(track_id = id, track_pop = popularity)
+
+
+# practice code -----------------------------------------------------------
+
 
 # getPlaylistSongs only grabs up to 100 of songs so you offset = 100 to get songs after 100
 # beat_s_100 <- getPlaylistSongs(user_id, playlist_id = "4rExKM3K6d0PEORWwrIdnx", offset = 100, token = my_oauth)
@@ -105,9 +120,6 @@ for (i in seq(over_100)) {
 
 # playlist_data <- rbind(playlist_data, beat_s_100)
 
-# Rename some variables
-playlist_data <- playlist_data %>% 
-  rename(track_id = id, track_pop = popularity)
 
 # Get User Artist ---------------------------------------------------------
 
@@ -116,7 +128,7 @@ my_artists <- playlist_data %>%
   select(artist, artist_full, artist_id)
 
 # create vecotr for for loop of artists ids
-artists <- as.vector(my_artists$artist_id)
+artists <- as.vector(unique(my_artists$artist_id))
 
 # Check to make sure the artist Ids can be found
 for(i in seq(artists)) {
@@ -143,14 +155,23 @@ for (i in seq(artists)) {
   artist_data <- rbind(artist_data, x)
 }
 
-artists2 <- as.vector((nrow(artist_data)+1):214)
 
 # only could do the first 127 artists so I will do it again
-for (i in artists2) {
-  x <- getArtist(artists[i],token = my_oauth)
-  # Rbind x and playlist_data
-  artist_data <- rbind(artist_data, x)
-}
+# repeat{
+  if(nrow(artist_data) == n_distinct(artists)){
+    print("finished")
+    # break
+  }else{
+    artists2 <- as.vector((nrow(artist_data)+1):1453)
+    for (i in artists2) {
+      x <- getArtist(artists[i],token = my_oauth)
+      # Rbind x and playlist_data
+      artist_data <- rbind(artist_data, x)
+    }
+  }
+# }
+
+
 
 artist_data <- artist_data %>% 
   rename(artist_id = id, artist_name = name, artist_pop = popularity, artist_followers = followers)
