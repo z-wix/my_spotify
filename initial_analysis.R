@@ -180,7 +180,9 @@ artist_data <- artist_data %>%
 
 # Join Playlists and Artist  ----------------------------------------------
 
-test <- inner_join(playlist_data, artist_data)
+my_music <- inner_join(playlist_data, artist_data)
+
+write.csv(my_music, "my_music.csv")
 
 
 # practice playlist stuff -------------------------------------------------
