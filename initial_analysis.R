@@ -15,6 +15,7 @@ library(Rspotify)
 id <- 'Id'
 secret <- 'ClientSecret'
 app_id <- "my_music_analysis"
+
 user_id <- "zwixom"
 
 # Authentication ----------------------------------------------------------
@@ -51,6 +52,20 @@ my_playlists <- all_playlists %>%
 # Vecotr of playlist_ids
 playlists <- as.vector(my_playlists$playlist_id)
 
+# Empty vector for playlists with over 100 songs
+over_100 <- vector("character")
+
+# Loop to collect playlists with over 100 songs
+for(i in seq(playlists)) {
+  x <- getPlaylistSongs(user_id, playlists[i], offset = 0, token = my_oauth)
+  if(nrow(x) < 100){
+    print(i)
+  }else{
+  over_100 <- c(over_100, playlists[i])
+  print(playlists[i])
+  }
+}
+
 # empty data frame for loop
 playlist_data <- data.frame(track=character(),
                             id=character(), 
@@ -63,7 +78,7 @@ playlist_data <- data.frame(track=character(),
                             playlist_index=numeric(),
                             stringsAsFactors=FALSE)
 
-# loop to collect data about artists in the playlist
+# loop to collect data about songs in the playlist
 for (i in seq(playlists)) {
   # getPlaylistsongs
   x <- getPlaylistSongs(user_id, playlists[i], offset = 0, token = my_oauth)
@@ -73,16 +88,26 @@ for (i in seq(playlists)) {
   playlist_data <- rbind(playlist_data, x)
 }
 
+# Loop to gather artist over 100 in playlists
+for (i in seq(over_100)) {
+  # getPlaylistsongs
+  x <- getPlaylistSongs(user_id, over_100[i], offset = 100, token = my_oauth)
+  # Add index column to x
+  x$playlist_index <- i
+  # Rbind x and playlist_data
+  playlist_data <- rbind(playlist_data, x)
+}
+
 # getPlaylistSongs only grabs up to 100 of songs so you offset = 100 to get songs after 100
-beat_s_100 <- getPlaylistSongs(user_id, playlist_id = "4rExKM3K6d0PEORWwrIdnx", offset = 100, token = my_oauth)
+# beat_s_100 <- getPlaylistSongs(user_id, playlist_id = "4rExKM3K6d0PEORWwrIdnx", offset = 100, token = my_oauth)
 
-beat_s_100$playlist_index <- i + 1
+# beat_s_100$playlist_index <- i + 1
 
-playlist_data <- rbind(playlist_data, beat_s_100)
+# playlist_data <- rbind(playlist_data, beat_s_100)
 
+# Rename some variables
 playlist_data <- playlist_data %>% 
   rename(track_id = id, track_pop = popularity)
-
 
 # Get User Artist ---------------------------------------------------------
 
