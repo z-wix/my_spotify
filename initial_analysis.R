@@ -260,13 +260,24 @@ my_music <- my_music %>%
         ifelse(
           grepl(paste(indie_genre,collapse="|"), genre_2) == TRUE,
           "indie/folk",
-          "other"
+          ifelse(
+            grepl(paste(hop_genre,collapse="|"), genre_2) == TRUE,
+            "hip hop",
+            ifelse(
+              grepl(paste(edm_genre,collapse="|"), genre_2) == TRUE,
+              "electronic",
+              ifelse(
+                grepl(paste(latin_genre,collapse="|"), genre_2) == TRUE,
+                "latin",
+                "other"
+                )
+              )
+            )
           )
         )
       )
     )
-  ) %>% 
-  select(-c(genre_3, genre_4, genre_5, genre_6))
+  )
 
 head(my_music)
 
