@@ -201,13 +201,21 @@ needle <- "lo"
 
 haystack <- genre_1
 
-lofi_genres <- c("lo-fi", "chill", "beat", "lo")
+lofi_genres <- c("lo-fi", "chill", "beat", "lo", "ambient")
 
-vgm_genre <- c("vgm", "otacore", "anime")
+vgm_genre <- c("vgm", "otacore", "anime", "game", "twitch")
 
-jazz_genres <- c("jazz", "instrumental", "score", "piano", "big", "focus")
+jazz_genres <- c("jazz", "instrumental", "score", "piano", "big", "focus", "classi")
 
-indie_genre <- c("indie", "folk", "alternative")
+indie_genre <- c("indie", "folk", "alternative", "wave")
+
+hop_genre <- c("hip hop", "pop", "r&b", "rap")
+
+edm_genre <- c("electronic", "edm", "trap", "house", "dub")
+
+latin_genre <- c("latin", "spanish", "guad", "regg", "chilean")
+
+
 
 my_music <- my_music %>% 
   mutate(
@@ -223,7 +231,19 @@ my_music <- my_music %>%
           ifelse(
             grepl(paste(indie_genre,collapse="|"), genre_1) == TRUE,
             "indie/folk",
-            "other"
+            ifelse(
+              grepl(paste(hop_genre,collapse="|"), genre_1) == TRUE,
+              "hip hop",
+              ifelse(
+                grepl(paste(edm_genre,collapse="|"), genre_1) == TRUE,
+                "electronic",
+                ifelse(
+                  grepl(paste(latin_genre,collapse="|"), genre_1) == TRUE,
+                  "latin",
+                  "other"
+                )
+              )
+            )
           )
         )
       )
@@ -241,11 +261,11 @@ my_music <- my_music %>%
           grepl(paste(indie_genre,collapse="|"), genre_2) == TRUE,
           "indie/folk",
           "other"
+          )
         )
       )
     )
-  )
-) %>% 
+  ) %>% 
   select(-c(genre_3, genre_4, genre_5, genre_6))
 
 head(my_music)
