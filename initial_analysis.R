@@ -182,8 +182,76 @@ artist_data <- artist_data %>%
 
 my_music <- inner_join(playlist_data, artist_data)
 
-write.csv(my_music, "my_music.csv")
+# write.csv(my_music, "my_music.csv")
+# 
+# 
+# my_music <- read.csv(here::here("data", "my_music.csv"))
 
+my_music <- separate(my_music, 'genres', paste("genre", 1:6, sep="_"), sep=";", extra="drop")
+
+genres <- unique(my_music$genre_1)
+
+my_play_genres <- my_music %>% 
+  group_by(playlist_index) %>% 
+  summarize(
+    genre = unique(genre_1)
+  )
+
+needle <- "lo"
+
+haystack <- genre_1
+
+lofi_genres <- c("lo-fi", "chill", "beat", "lo")
+
+vgm_genre <- c("vgm", "otacore", "anime")
+
+jazz_genres <- c("jazz", "instrumental", "score", "piano", "big", "focus")
+
+indie_genre <- c("indie", "folk", "alternative")
+
+my_music <- my_music %>% 
+  mutate(
+    genre = ifelse(
+      grepl(paste(lofi_genres,collapse="|"), genre_1) == TRUE,
+      "lo-fi", 
+      ifelse(
+        grepl(paste(vgm_genre,collapse="|"), genre_1) == TRUE,
+        "vgm",
+        ifelse(
+          grepl(paste(jazz_genres,collapse="|"), genre_1) == TRUE,
+          "jazz",
+          ifelse(
+            grepl(paste(indie_genre,collapse="|"), genre_1) == TRUE,
+            "indie/folk",
+            "other"
+          )
+        )
+      )
+    ),
+  alt_genre = ifelse(
+    grepl(paste(lofi_genres,collapse="|"), genre_2) == TRUE,
+    "lo-fi", 
+    ifelse(
+      grepl(paste(vgm_genre,collapse="|"), genre_2) == TRUE,
+      "vgm",
+      ifelse(
+        grepl(paste(jazz_genres,collapse="|"), genre_2) == TRUE,
+        "jazz",
+        ifelse(
+          grepl(paste(indie_genre,collapse="|"), genre_2) == TRUE,
+          "indie/folk",
+          "other"
+        )
+      )
+    )
+  )
+) %>% 
+  select(-c(genre_3, genre_4, genre_5, genre_6))
+
+head(my_music)
+
+
+write.csv(my_music, "my_music.csv")
 
 # practice playlist stuff -------------------------------------------------
 
